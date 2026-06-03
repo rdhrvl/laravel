@@ -1,0 +1,45 @@
+di dalam app terdapat MVC (Model View Controller)
+
+Views : Tampilan pada App/Web (UI dan UX)
+ Didalam views hanya berisi CSS, HTML, Javascript
+ Didalam sebuah views tidak boleh ada Logic Database
+
+Controller : mengontrol alur yang ada di app/web
+    Fungsinya : Menghubungkan antara views dan model
+
+Model : Query yang berisi database/Logic database
+    Contoh : Insert, Update, Select, Delete
+    Query builder, eloquent, orm
+
+Composer : Install package dari PHP
+Artisan : buat jalanin fitur yang ada di laravel
+    Contoh :
+    php artisan fitur (laravel)
+    php spark fitur (Code Igniter)
+
+Pilihan Controller
+1. Resource : berisi function index, detail, create, store, edit, update
+2. API : Laravel cuma digunakan sebagai API tidak bisa fullstack
+3. Empty : Controller ini tidak berisi fungsi apapun dan masih kosong
+
+Routing :
+Method
+GET, POST, PUT, DELETE
+GET : Berfungsi untuk membaca atau melihat Database
+POST : Berfungsi untuk mengirim Data ke server atau database/table untuk kebutuhan INSERT (POST harus dibalut di dalam Form)
+PUT : Berfungsi untuk mengirim Data ke database/table untuk kebutuhan Update semua Field Database
+PATCH : Berfungsi untuk mengirim Data ke database/table untuk kebutuhan Update 1 Field Database
+DELETE : Berfungsi untuk mengirim Data ke database/table untuk kebutuhan Delete
+
+CSRF :
+CSRF : Stempel khusus
+form ngirim csrf_token = 123
+session 123, kalo bener akan menampilkan pemrosesan
+kalo salah, akan menampilkan status page expired
+
+Migration :
+- Version Control versi database untuk membuat database dan table
+- table harus plural, seperti users, products, jobs
+
+
+di dalam migration terdapat seeder yang berfungsi untuk mengisi data dummy
