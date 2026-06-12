@@ -68,4 +68,5 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('key', \App\Http\Controllers\KeyController::class);
     Route::resource('student', \App\Http\Controllers\StudentController::class);
     Route::resource('instructor', \App\Http\Controllers\InstructorController::class);
+    Route::resource('user-role', \App\Http\Controllers\UserRoleController::class);
 });

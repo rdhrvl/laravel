@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Role;
+use App\Models\User;
+use Illuminate\Http\Request;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Models\UserRole;
 
 
-class RoleController extends Controller
+class UserRoleController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //select * from users
-        //
-        // $users = User::orderBy('id', 'desc')->get;
-        // $users = User::latest()->get();
-        $roles = Role::orderByDesc('id')->get();
+        $users = User::get();
+        $roles = Role::get();
+        $userRoles = UserRole::with('user', 'role')->orderByDesc('id')->get();
         $title = 'Role Management';
-        return view('role.index', compact('roles', 'title'));
+        return view('user-role.index', compact('userRoles', 'users', 'roles', 'title'));
     }
 
     /**
@@ -28,9 +28,10 @@ class RoleController extends Controller
      */
     public function create()
     {
-        //
+        $users = User::get();
+        $roles = Role::get();
         $title = "Create New Role";
-        return view('role.create', compact('title'));
+        return view('user-role.create', compact('title', 'users', 'roles',));
     }
 
     /**
@@ -39,17 +40,18 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         $validate = $request->validate([
-            'name' => 'required',
-            'is_active' => 'required'
+            'user_name' => 'required',
+            'role_name' => 'required',
+
         ]);
 
 
         //
-        Role::create($request->all());
+        UserRole::create($request->all());
         Alert::success('Success!', 'Your Role has Been Created!');
         // toast('Your Role Has Been Created!', 'success');
 
-        return redirect()->to('role');
+        return redirect()->to('user-role');
     }
 
     /**
@@ -67,10 +69,9 @@ class RoleController extends Controller
     {
         //
         $title = 'Edit Role';
-        $edit = Role::find($id); //kalo gabisa blank
-        $menus = Menu::where('is_active', 1)->orderBy('sort_order')->get();
+        $edit = UserRole::find($id); //kalo gabisa blank
         // $edit = User::findOrFail($id); //kalo gabisa 404
-        return view('role.edit', compact('title', 'edit'));
+        return view('user-role.edit', compact('title', 'edit'));
     }
 
     /**
@@ -83,8 +84,8 @@ class RoleController extends Controller
             'is_active' => $request->is_active
         ];
 
-        Role::find($id)->update($data);
-        return redirect()->to('role');
+        UserRole::find($id)->update($data);
+        return redirect()->to('user-role');
     }
 
     /**
@@ -93,7 +94,7 @@ class RoleController extends Controller
     public function destroy(string $id)
     {
         //
-        Role::find($id)->delete();
-        return redirect()->to('role');
+        UserRole::find($id)->delete();
+        return redirect()->to('user-role');
     }
 }

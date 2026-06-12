@@ -22,11 +22,6 @@
                     <input type="radio" name="is_active" value="0" class="form-check-input"
                         {{ $edit->is_active == 0 ? 'checked' : '' }}> Inactive
                 </div>
-
-                <div class="mb-3">
-                    <input type="checkbox" name="menu_ids[]" class="form-check-input">
-                    <label for="Menu"></label>
-                </div>
                 <button class="btn btn-primary" type="submit">Save</button>
                 <a href="{{ url()->previous() }}" class="text-secondary">Back</a>
             </form>

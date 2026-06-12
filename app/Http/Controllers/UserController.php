@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Role;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use RealRashid\SweetAlert\Facades\Alert;
 
 
@@ -18,7 +20,7 @@ class UserController extends Controller
         //
         // $users = User::orderBy('id', 'desc')->get;
         // $users = User::latest()->get();
-        $users = User::orderByDesc('id')->get();
+        $users = User::with('roles')->orderByDesc('id')->get();
         $title = 'User Management';
         return view('user.index', compact('users', 'title'));
     }
@@ -30,7 +32,8 @@ class UserController extends Controller
     {
         //
         $title = "Create New User";
-        return view('user.create', compact('title'));
+        $roles = Role::get();
+        return view('user.create', compact('title', 'roles'));
     }
 
     /**
@@ -41,14 +44,32 @@ class UserController extends Controller
         $validate = $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6'
+            'password' => 'required|min:6',
         ]);
+
+        DB::beginTransaction();
+
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => $request->password,
+            ]);
+            $user->roles()->sync($request->role_ids);
+
+            DB::commit();
+            toast('Your User Has Been Created!', 'success');
+            return redirect()->to('user');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            // return $th->getMessage();
+            toast('An error occured while saving', 'error');
+            return back()->withInput();
+        }
 
 
         //
-        User::create($request->all());
-        Alert::success('Success!!', 'Created user success');
-        // toast('Your User Has Been Created!', 'success');
+
 
         return redirect()->to('user');
     }
@@ -69,8 +90,11 @@ class UserController extends Controller
         //
         $title = 'Edit User';
         $edit = User::find($id); //kalo gabisa blank
+        $roles = Role::get();
+        $users = User::with('roles')->orderByDesc('id')->get();
+
         // $edit = User::findOrFail($id); //kalo gabisa 404
-        return view('user.edit', compact('title', 'edit'));
+        return view('user.edit', compact('title', 'edit', 'roles', 'users'));
     }
 
     /**
@@ -78,26 +102,40 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $data = [
-            'name' => $request->name,
-            'email' => $request->email,
-        ];
-        //jika user memasukan password
-        if (filled($request->password)) {
-            $data['password'] = $request->password;
-        }
+        DB::beginTransaction();
+        try {
+            $data = [
+                'name' => $request->name,
+                'email' => $request->email,
+            ];
+            //jika user memasukan password
+            if (filled($request->password)) {
+                $data['password'] = $request->password;
+            }
 
-        User::find($id)->update($data);
-        return redirect()->to('user');
+            $user = User::find($id);
+            $user->update($data);
+            $user->roles()->sync($request->role_ids);
+            DB::commit();
+            toast('Your User Has Been Saved!', 'success');
+            return redirect()->to('user');
+        } catch (\Throwable $th) {
+            return $th->getMessage();
+
+            DB::rollBack();
+            toast('An error occured while saving', 'error');
+            return back()->withInput();
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(User $user)
     {
         //
-        User::find($id)->delete();
+        $user->delete();
+        toast('Your User Has Been Deleted!', 'success');
         return redirect()->to('user');
     }
 }
